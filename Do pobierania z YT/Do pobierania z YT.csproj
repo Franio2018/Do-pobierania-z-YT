@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3617" />
     <PackageReference Include="MediaToolkit" Version="1.1.0.1" />
     <PackageReference Include="VideoLibrary" Version="3.2.6" />
     <PackageReference Include="YoutubeExplode" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MusicDownloadLib\MusicDownloadLib.csproj" />
   </ItemGroup>
 
 </Project>
