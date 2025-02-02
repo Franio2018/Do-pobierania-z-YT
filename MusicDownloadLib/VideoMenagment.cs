@@ -1,4 +1,5 @@
-﻿using YoutubeExplode;
+﻿using System.Text.RegularExpressions;
+using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
 
 namespace MusicDownloadLib
@@ -17,7 +18,6 @@ namespace MusicDownloadLib
 
                 // Select the best audio-only stream
                 var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-
                 if (audioStreamInfo == null)
                 {
                     Console.WriteLine("Could not find suitable audio streams.");
@@ -27,14 +27,14 @@ namespace MusicDownloadLib
                 var video = await youtube.Videos.GetAsync(videoUrl);
 
                 // Get the video title
-                string videoTitle = video.Title;
+                string videoTitle = Regex.Replace(video.Title, "[\\\\/:*?\"<>|]", "");
                 string audioFilePath = Path.Combine(outputFilePath, videoTitle + ".mp4");
-
+                string shorterTitle = videoTitle.Length > 30 ? videoTitle.Substring(0, 30) + "..." : videoTitle;
                 // Create a progress handler
                 var progressHandler = new Progress<double>(progress =>
                 {
                     // Display the progress percentage
-                    Console.Write($"\rDownloading {videoTitle}: {progress:P0}");
+                    Console.Write($"\rDownloading {shorterTitle}: {progress:P0}");
                 });
 
                 // Download audio stream with progress

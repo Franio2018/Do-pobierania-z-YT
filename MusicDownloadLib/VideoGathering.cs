@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using YoutubeExplode;
 
 namespace MusicDownloadLib
 {
@@ -32,7 +33,7 @@ namespace MusicDownloadLib
             else
             {
                 Console.WriteLine("Channel ID could not be resolved.");
-            }   
+            }
 
             playlistRequest.ChannelId = channelId;
             playlistRequest.MaxResults = 50; // Fetch up to 50 playlists at a time
@@ -154,6 +155,27 @@ namespace MusicDownloadLib
             return musicList; // Return the list of music titles and URLs
         }
 
+        public void AddVideoToList(List<(string Title, string Url)> Songs, string Url)
+        {
+            try
+            {
+                // Create the Videos request
+                var videoRequest = youtubeService.Videos.List("snippet");
+                Url = Url.Split("?v=")[^1];
+                videoRequest.Id = Url;
+
+                // Execute the request
+                var response = videoRequest.Execute();
+
+                // Extract and return the title
+                var video = response.Items.FirstOrDefault();
+                Songs.Add((video?.Snippet.Title ?? "Title not found", Url));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
 
         public string getYouTubeThumbnail(string YoutubeUrl)
         {

@@ -14,13 +14,18 @@ internal class Program
         string channelId = Console.ReadLine();
         List<(string Title, string Url)> ListaUtworow = videoMenagment.GetPlayListToDownload(channelId, videoGathering);
 
-        Console.WriteLine("Piosenki z playlisty:");
-        int i = 0;
-        foreach (var item in ListaUtworow)
-        {
-            Console.WriteLine($"{i++}: " + item.Title + " " + item.Url);
-        }
+        WriteListOfSongs(ListaUtworow);
 
+        //Console.WriteLine("chciałbyś dodać piosenke do listy?");
+        //videoGathering.AddVideoToList(ListaUtworow, Console.ReadLine());
+
+        //WriteListOfSongs(ListaUtworow);
+
+        InitiateDownload(videoMenagment, ListaUtworow);
+    }
+
+    private static void InitiateDownload(VideoMenagment videoMenagment, List<(string Title, string Url)> ListaUtworow)
+    {
         Console.WriteLine("Podaj który element lub czy całą listę pobrać (Y/N/Nr)");
         List<Task> tasks = new List<Task>();
         string response = Console.ReadLine();
@@ -31,7 +36,7 @@ internal class Program
                 tasks.Add(videoMenagment.DownloadMusic(videoUrl.Url));
             }
         }
-        if (response == "N")
+        else if (response == "N")
         {
             return;
         }
@@ -40,5 +45,15 @@ internal class Program
             tasks.Add(videoMenagment.DownloadMusic(ListaUtworow[Convert.ToInt16(response)].Url));
         }
         Task.WaitAll(tasks.ToArray());
+    }
+
+    private static void WriteListOfSongs(List<(string Title, string Url)> ListaUtworow)
+    {
+        Console.WriteLine("Piosenki z playlisty:");
+        int i = 0;
+        foreach (var item in ListaUtworow)
+        {
+            Console.WriteLine($"{i++}: " + item.Title + " " + item.Url);
+        }
     }
 }
