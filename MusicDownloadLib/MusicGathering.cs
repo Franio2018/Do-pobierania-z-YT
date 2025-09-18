@@ -10,7 +10,7 @@ using YoutubeExplode;
 
 namespace MusicDownloadLib
 {
-    public class VideoGathering
+    public class MusicGathering
     {
         private YouTubeService youtubeService = new YouTubeService(new BaseClientService.Initializer() { ApiKey = "AIzaSyADJG2lPWphTWLQDcyG9iBjoQmawmtc0uE" });
 

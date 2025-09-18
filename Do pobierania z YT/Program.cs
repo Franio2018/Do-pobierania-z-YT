@@ -1,59 +1,68 @@
 ﻿using MusicDownloadLib;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
-using VideoLibrary;
+using System.Net.NetworkInformation;
+using System.Threading.Channels;
 
 internal class Program
 {
     private static async Task Main(string[] args)
     {
-        VideoMenagment videoMenagment = new VideoMenagment();
-        VideoGathering videoGathering = new VideoGathering();
+        var channel = new MusicDownloadLib.Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "neffexmusic", "UCoRR6OLuIZ2-5VxtnQIaN2w");
 
-        Console.WriteLine("Podaj ID/nazwe kanału:");
-        string channelId = Console.ReadLine();
-        List<(string Title, string Url)> ListaUtworow = videoMenagment.GetPlayListToDownload(channelId, videoGathering);
+        return;
 
-        WriteListOfSongs(ListaUtworow);
+        MusicMenagment musicMenagment = new MusicMenagment();
+        MusicGathering musicGathering = new MusicGathering();
+        MusicListManagment musicListMngmt = new MusicListManagment();
 
-        //Console.WriteLine("chciałbyś dodać piosenke do listy?");
-        //videoGathering.AddVideoToList(ListaUtworow, Console.ReadLine());
+        //Console.WriteLine("Podaj ID/nazwe kanału:");
+        //string channelId = Console.ReadLine();
+        List<(string Title, string Url)> ListaUtworow = new List<(string Title, string Url)>(); //videoMenagment.GetPlayListToDownload(channelId, videoGathering);
 
-        //WriteListOfSongs(ListaUtworow);
+        //musicListMngmt.WriteListOfSongs(ListaUtworow);
 
-        InitiateDownload(videoMenagment, ListaUtworow);
+        Console.WriteLine("chciałbyś dodać piosenke do listy?");
+        musicGathering.AddVideoToList(ListaUtworow, Console.ReadLine());
+
+        musicListMngmt.WriteListOfSongs(ListaUtworow);
+
+        InitiateDownload(musicMenagment, ListaUtworow);
+
+        Console.WriteLine("Press any key to close application");
+        Console.ReadLine();
     }
 
-    private static void InitiateDownload(VideoMenagment videoMenagment, List<(string Title, string Url)> ListaUtworow)
+    private static void InitiateDownload(MusicMenagment videoMenagment, List<(string Title, string Url)> ListaUtworow)
     {
-        Console.WriteLine("Podaj który element lub czy całą listę pobrać (Y/N/Nr)");
-        List<Task> tasks = new List<Task>();
-        string response = Console.ReadLine();
-        if (response == "Y")
+        string response;
+        do
         {
-            foreach (var videoUrl in ListaUtworow)
+            Console.WriteLine("Podaj który element lub czy całą listę pobrać (Y/N/Nr)");
+            List<Task> tasks = new List<Task>();
+            response = Console.ReadLine();
+            if(string.IsNullOrEmpty(response))
             {
-                tasks.Add(videoMenagment.DownloadMusic(videoUrl.Url));
+                Console.Write("Podaj wartość!");
+                continue;
+            }    
+            if (response.ToUpper() == "Y")
+            {
+                foreach (var videoUrl in ListaUtworow)
+                {
+                    tasks.Add(videoMenagment.DownloadMusic(videoUrl.Url));
+                }
             }
-        }
-        else if (response == "N")
-        {
-            return;
-        }
-        else
-        {
-            tasks.Add(videoMenagment.DownloadMusic(ListaUtworow[Convert.ToInt16(response)].Url));
-        }
-        Task.WaitAll(tasks.ToArray());
-    }
-
-    private static void WriteListOfSongs(List<(string Title, string Url)> ListaUtworow)
-    {
-        Console.WriteLine("Piosenki z playlisty:");
-        int i = 0;
-        foreach (var item in ListaUtworow)
-        {
-            Console.WriteLine($"{i++}: " + item.Title + " " + item.Url);
-        }
+            else if (response.ToUpper() == "N")
+            {
+                return;
+            }
+            else
+            {
+                int index = -1;
+                if(Int32.TryParse(response, out index))
+                tasks.Add(videoMenagment.DownloadMusic(ListaUtworow[index].Url));
+            }
+            Task.WaitAll(tasks.ToArray());
+            break;
+        } while (true);
     }
 }

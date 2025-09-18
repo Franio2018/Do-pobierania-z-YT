@@ -4,7 +4,7 @@ using YoutubeExplode.Videos.Streams;
 
 namespace MusicDownloadLib
 {
-    public class VideoMenagment
+    public class MusicMenagment
     {
         public async Task DownloadMusic(string videoUrl)
         {
@@ -29,7 +29,7 @@ namespace MusicDownloadLib
                 // Get the video title
                 string videoTitle = Regex.Replace(video.Title, "[\\\\/:*?\"<>|]", "");
                 string audioFilePath = Path.Combine(outputFilePath, videoTitle + ".mp4");
-                string shorterTitle = videoTitle.Length > 30 ? videoTitle.Substring(0, 30) + "..." : videoTitle;
+                string shorterTitle = videoTitle.Length > 25 ? videoTitle.Substring(0, 25) + "..." : videoTitle;
                 // Create a progress handler
                 var progressHandler = new Progress<double>(progress =>
                 {
@@ -48,7 +48,7 @@ namespace MusicDownloadLib
             }
         }
 
-        public List<(string Tilte, string Url)> GetPlayListToDownload(string channelId, VideoGathering vidGad)
+        public List<(string Tilte, string Url)> GetPlayListToDownload(string channelId, MusicGathering vidGad)
         {
             var list = vidGad.GetAllPlaylistsTitles(channelId);
             int i = 0;
