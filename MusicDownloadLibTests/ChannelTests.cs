@@ -6,40 +6,41 @@ namespace MusicDownloadLib.Tests
     public class ChannelTests
     {
         [TestMethod()]
-        public void ChannelTest()
-        {
-            Channel channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "","");
-            Assert.IsNotNull(channel);
-
-            Assert.AreEqual(channel.name, "NFrealmusic");
-            Assert.AreEqual(channel.id, "UCoRR6OLuIZ2-5VxtnQIaN2w");
-
-            Channel channel2 = new Channel("", "NFrealmusic", "");
-            channel.CompareTo(channel2);
-        }
-
-        [TestMethod()]
         public void GetChannelPlaylistsTest()
         {
-            Assert.Fail();
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
+            var result = channel.GetChannelPlaylists();
+
+            Assert.IsTrue(result);
+            Assert.IsNotNull(channel.playlists);
+            Assert.IsTrue(channel.playlists.Count > 0, "Channel should have at least one playlist");
         }
 
         [TestMethod()]
         public void GetPlaylistTest()
         {
-            Assert.Fail();
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
+            channel.GetChannelPlaylists();
+
+            var playlist = channel.GetPlaylist(0);
+
+            Assert.IsNotNull(playlist);
+            Assert.IsInstanceOfType(playlist, typeof(Playlist));
         }
 
         [TestMethod()]
         public void ResolveChannelIdTest()
         {
-            Assert.Fail();
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
+            Assert.AreEqual("UCoRR6OLuIZ2-5VxtnQIaN2w", channel.id);
         }
 
         [TestMethod()]
         public void ResolveChannelNameTest()
         {
-            Assert.Fail();
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
+            Assert.AreEqual("NFrealmusic", channel.name);
         }
+
     }
 }
