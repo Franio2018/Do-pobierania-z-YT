@@ -20,10 +20,10 @@ namespace MusicDownloadLib
         public Playlist(Google.Apis.YouTube.v3.Data.Playlist playlist)
         {
             apiPlaylist = playlist;
-            LoadVideos();
+            FetchVideos();
         }
 
-        private bool LoadVideos()
+        private bool FetchVideos()
         {
             var playlistRequest = youtubeService.PlaylistItems.List("snippet");
             playlistRequest.PlaylistId = apiPlaylist.Id;
