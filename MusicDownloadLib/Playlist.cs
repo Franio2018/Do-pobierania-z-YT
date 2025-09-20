@@ -23,6 +23,14 @@ namespace MusicDownloadLib
             FetchVideos();
         }
 
+        // Test Purposes
+        public Playlist(List<PlaylistItem> initialVideos)
+        {
+            apiPlaylist = new Google.Apis.YouTube.v3.Data.Playlist(); // dummy
+            videos = new List<PlaylistItem>(initialVideos);
+        }
+
+
         private bool FetchVideos()
         {
             var playlistRequest = youtubeService.PlaylistItems.List("snippet");
