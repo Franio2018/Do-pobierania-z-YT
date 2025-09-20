@@ -8,32 +8,23 @@ namespace MusicDownloadLib
     public class Channel : IChannel, IComparable<Channel>
     {
         private YouTubeService youtubeService = new YouTubeService(new BaseClientService.Initializer() { ApiKey = "AIzaSyADJG2lPWphTWLQDcyG9iBjoQmawmtc0uE" });
-        public string ?url { get; private set; }
-        public string ?name { get; private set; }
-        public string ?id { get; private set; }
-        public List<Playlist> playlists {  get; set; }
+        public string url { get; private set; }
+        public string name { get; private set; }
+        public string id { get; private set; }
+        public List<Playlist> playlists {  get; private set; }
 
         public Channel(string url, string name, string id) {
-            if (!string.IsNullOrEmpty(url))
-            {
-                this.url = url;
-                if (!ResolveChannelId()) throw new Exception("Couldn't resolve channel ID based on URL");
-                if(!ResolveChannelName()) throw new Exception("Couldn't resolve channel name based on URL");
-            }
-            else if (!string.IsNullOrEmpty(name))
-            {
-                this.name = name;
-                if (!ResolveChannelId()) throw new Exception("Couldn't resolve channel ID based on name");
-            }
-            else if (!string.IsNullOrEmpty(id))
-            {
-                this.id = id;
-                if (!ResolveChannelName()) throw new Exception("Couldn't resolve channel name based on ID");
-            }
-            else
-            {
+
+            if (string.IsNullOrEmpty(url) && string.IsNullOrEmpty(name) && string.IsNullOrEmpty(id))
                 throw new ArgumentNullException("URL/Name/Id value is requaiered!");
-            }
+
+            this.url = url ?? String.Empty;
+            this.name = name ?? String.Empty;
+            this.id = id ?? String.Empty;
+
+            if (!ResolveChannelId()) throw new Exception("Couldn't resolve channel's ID");
+            if (!ResolveChannelName()) throw new Exception("Couldn't resolve channel's name");
+
             playlists = new List<Playlist>();
             GetChannelPlaylists();
         }
@@ -60,7 +51,9 @@ namespace MusicDownloadLib
                 var playlistResponse = playlistRequest.Execute();
 
                 // Add playlists from searched channel to playlist List
-                playlists.AddRange(playlistResponse.Items);
+                playlists.AddRange(
+                    playlistResponse.Items.Select(p => new Playlist(p))
+                    );
 
                 // Update the nextPageToken to fetch more pages
                 nextPageToken = playlistResponse.NextPageToken;
@@ -71,9 +64,10 @@ namespace MusicDownloadLib
 
         public Playlist GetPlaylist(int index)
         {
-            if(index >= 0 && index < playlists.Count)
-                return playlists[index];
-            throw new IndexOutOfRangeException();
+            if(index > 0 && index >= playlists.Count)
+                throw new IndexOutOfRangeException();
+            return playlists[index];
+            
         }
 
         public bool ResolveChannelId()
