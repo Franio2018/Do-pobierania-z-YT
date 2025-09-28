@@ -100,7 +100,7 @@ namespace MusicDownloadLib
 
         public List<PlaylistItem> GetVideos()
         {
-            return new List<PlaylistItem>(videos);
+            return [.. videos];
         }
     }
 }
