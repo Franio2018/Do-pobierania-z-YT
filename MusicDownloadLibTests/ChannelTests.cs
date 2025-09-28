@@ -8,8 +8,8 @@ namespace MusicDownloadLib.Tests
         [TestMethod()]
         public void GetChannelPlaylistsTest()
         {
-            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
-            var result = channel.GetChannelPlaylists();
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
+            var result = channel.FetchPlaylists();
 
             Assert.IsTrue(result);
             Assert.IsNotNull(channel.playlists);
@@ -19,8 +19,8 @@ namespace MusicDownloadLib.Tests
         [TestMethod()]
         public void GetPlaylistTest()
         {
-            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
-            channel.GetChannelPlaylists();
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
+            channel.FetchPlaylists();
 
             var playlist = channel.GetPlaylist(0);
 
@@ -31,14 +31,14 @@ namespace MusicDownloadLib.Tests
         [TestMethod()]
         public void ResolveChannelIdTest()
         {
-            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
             Assert.AreEqual("UCoRR6OLuIZ2-5VxtnQIaN2w", channel.id);
         }
 
         [TestMethod()]
         public void ResolveChannelNameTest()
         {
-            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "", "");
+            var channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
             Assert.AreEqual("NFrealmusic", channel.name);
         }
 

@@ -2,6 +2,7 @@
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using System.Linq;
+using System.Net.Http.Headers;
 
 namespace MusicDownloadLib
 {
@@ -11,12 +12,13 @@ namespace MusicDownloadLib
         public string url { get; private set; }
         public string name { get; private set; }
         public string id { get; private set; }
-        public List<Playlist> playlists {  get; private set; }
+        public List<Playlist> playlists { get; private set; } = new();
+        public List<PlaylistItem> videos { get; private set; } = new();
 
-        public Channel(string url, string name, string id) {
+        public Channel(string url) {
 
-            if (string.IsNullOrEmpty(url) && string.IsNullOrEmpty(name) && string.IsNullOrEmpty(id))
-                throw new ArgumentNullException("URL/Name/Id value is requaiered!");
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException("Link to channel is requaiered!");
 
             this.url = url ?? String.Empty;
             this.name = name ?? String.Empty;
@@ -25,11 +27,11 @@ namespace MusicDownloadLib
             if (!ResolveChannelId()) throw new Exception("Couldn't resolve channel's ID");
             if (!ResolveChannelName()) throw new Exception("Couldn't resolve channel's name");
 
-            playlists = new List<Playlist>();
-            GetChannelPlaylists();
+            FetchPlaylists();
+            FetchVideos();
         }
 
-        public bool GetChannelPlaylists()
+        public bool FetchPlaylists()
         {
             // Request playlists for the channel
             var playlistRequest = youtubeService.Playlists.List("snippet");
@@ -59,6 +61,38 @@ namespace MusicDownloadLib
                 nextPageToken = playlistResponse.NextPageToken;
 
             } while (!string.IsNullOrEmpty(nextPageToken));
+            return true;
+        }
+
+        public bool FetchVideos()
+        {
+            var videosRequest = youtubeService.Videos.List("snippet");
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new ArgumentNullException(nameof(id), "id cannot be null or empty.");
+            }
+
+            var channelRequest = youtubeService.Channels.List("contentDetails");
+            channelRequest.Id = id; // channel ID
+            var channelResponse = channelRequest.Execute();
+            var uploadsPlaylistId = channelResponse.Items[0].ContentDetails.RelatedPlaylists.Uploads;
+
+
+            var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet");
+            playlistItemsRequest.PlaylistId = uploadsPlaylistId;
+            playlistItemsRequest.MaxResults = 50;
+
+            string nextPageToken = null;
+            do
+            {
+                playlistItemsRequest.PageToken = nextPageToken;
+                var playlistItemsResponse = playlistItemsRequest.Execute();
+
+                videos.AddRange(playlistItemsResponse.Items);
+
+                nextPageToken = playlistItemsResponse.NextPageToken;
+            }
+            while (!string.IsNullOrEmpty(nextPageToken));
             return true;
         }
 
