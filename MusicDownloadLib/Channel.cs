@@ -82,7 +82,7 @@ namespace MusicDownloadLib
             playlistItemsRequest.PlaylistId = uploadsPlaylistId;
             playlistItemsRequest.MaxResults = 50;
 
-            string nextPageToken = null;
+            string? nextPageToken = null;
             do
             {
                 playlistItemsRequest.PageToken = nextPageToken;
