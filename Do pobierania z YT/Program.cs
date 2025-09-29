@@ -7,7 +7,7 @@ internal class Program
     private static async Task Main(string[] args)
     {
         //IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w", "neffexmusic", "UCoRR6OLuIZ2-5VxtnQIaN2w");
-        IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/@Kowi-v9j");
+        IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
 
 
         int numerator = 0;
