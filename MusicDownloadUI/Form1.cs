@@ -25,7 +25,7 @@ namespace MusicDownloadUI
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Vertical,
-                SplitterDistance = 200
+                SplitterDistance = 40
             };
             Controls.Add(split);
 
@@ -85,14 +85,6 @@ namespace MusicDownloadUI
             videoList.Columns.Add("Published", 120);
             rightPanel.Controls.Add(videoList);
 
-            // Podgląd miniatury
-            var preview = new PictureBox
-            {
-                Dock = DockStyle.Bottom,
-                Height = 120,
-                SizeMode = PictureBoxSizeMode.Zoom
-            };
-            rightPanel.Controls.Add(preview);
 
             split.Panel2.Controls.Add(rightPanel);
 
