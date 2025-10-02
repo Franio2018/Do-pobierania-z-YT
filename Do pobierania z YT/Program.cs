@@ -1,59 +1,40 @@
 ﻿using MusicDownloadLib;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
-using VideoLibrary;
+using System.Net.NetworkInformation;
+using System.Threading.Channels;
 
 internal class Program
 {
     private static async Task Main(string[] args)
     {
-        VideoMenagment videoMenagment = new VideoMenagment();
-        VideoGathering videoGathering = new VideoGathering();
+        IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
+        //IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/@Kowi-v9j");
 
-        Console.WriteLine("Podaj ID/nazwe kanału:");
-        string channelId = Console.ReadLine();
-        List<(string Title, string Url)> ListaUtworow = videoMenagment.GetPlayListToDownload(channelId, videoGathering);
+        channel.videos.ForEach(v => Console.WriteLine(v.Snippet.Title));
 
-        WriteListOfSongs(ListaUtworow);
+        int numerator = 0;
+        channel.playlists.ForEach(p => Console.WriteLine(numerator++ + " " + p.apiPlaylist.Snippet.Title));
+        int index = Convert.ToInt32(Console.ReadLine());
+        Playlist playlist = channel.GetPlaylist(index);
 
-        //Console.WriteLine("chciałbyś dodać piosenke do listy?");
-        //videoGathering.AddVideoToList(ListaUtworow, Console.ReadLine());
+        return;
 
-        //WriteListOfSongs(ListaUtworow);
-
-        InitiateDownload(videoMenagment, ListaUtworow);
-    }
-
-    private static void InitiateDownload(VideoMenagment videoMenagment, List<(string Title, string Url)> ListaUtworow)
-    {
-        Console.WriteLine("Podaj który element lub czy całą listę pobrać (Y/N/Nr)");
-        List<Task> tasks = new List<Task>();
-        string response = Console.ReadLine();
-        if (response == "Y")
+        var semaphore = new SemaphoreSlim(5); // max 5 jednocześnie
+        var tasks = playlist.GetVideos().Select(async v =>
         {
-            foreach (var videoUrl in ListaUtworow)
+            await semaphore.WaitAsync();
+            try
             {
-                tasks.Add(videoMenagment.DownloadMusic(videoUrl.Url));
+                await v.DownloadAsync();
             }
-        }
-        else if (response == "N")
-        {
-            return;
-        }
-        else
-        {
-            tasks.Add(videoMenagment.DownloadMusic(ListaUtworow[Convert.ToInt16(response)].Url));
-        }
-        Task.WaitAll(tasks.ToArray());
-    }
+            finally
+            {
+                semaphore.Release();
+            }
+        }).ToList();
 
-    private static void WriteListOfSongs(List<(string Title, string Url)> ListaUtworow)
-    {
-        Console.WriteLine("Piosenki z playlisty:");
-        int i = 0;
-        foreach (var item in ListaUtworow)
-        {
-            Console.WriteLine($"{i++}: " + item.Title + " " + item.Url);
-        }
+        // Czekanie na wszystkie
+        await Task.WhenAll(tasks);
+
+        return;
     }
 }

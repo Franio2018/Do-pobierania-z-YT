@@ -1,20 +1,27 @@
-﻿using System.Text.RegularExpressions;
+﻿using Google.Apis.YouTube.v3.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
 
 namespace MusicDownloadLib
 {
-    public class VideoMenagment
+    public static class PlaylistItemExtension
     {
-        public async Task DownloadMusic(string videoUrl)
-        {
-            string outputFilePath = @"C:\Users\Franek\OneDrive - BAKK Sp. z o.o\Pulpit\MusicFranek\"; // Final merged file
+        private static readonly string outputFilePath = @"C:\Users\Franek\OneDrive - BAKK Sp. z o.o\Pulpit\Joanna Chmilelewska\"; // Final merged file
 
+        public static async Task DownloadAsync(this PlaylistItem videoData) 
+        { 
+        
             var youtube = new YoutubeClient();
             try
             {
                 // Get stream manifest
-                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
+                var streamManifest = await youtube.Videos.Streams.GetManifestAsync("https://www.youtube.com/watch?v="+videoData.Snippet.ResourceId.VideoId);
 
                 // Select the best audio-only stream
                 var audioStreamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
@@ -24,12 +31,12 @@ namespace MusicDownloadLib
                     return;
                 }
 
-                var video = await youtube.Videos.GetAsync(videoUrl);
+                var video = await youtube.Videos.GetAsync("https://www.youtube.com/watch?v=" + videoData.Snippet.ResourceId.VideoId);
 
                 // Get the video title
                 string videoTitle = Regex.Replace(video.Title, "[\\\\/:*?\"<>|]", "");
                 string audioFilePath = Path.Combine(outputFilePath, videoTitle + ".mp4");
-                string shorterTitle = videoTitle.Length > 30 ? videoTitle.Substring(0, 30) + "..." : videoTitle;
+                string shorterTitle = videoTitle.Length > 25 ? videoTitle.Substring(0, 25) + "..." : videoTitle;
                 // Create a progress handler
                 var progressHandler = new Progress<double>(progress =>
                 {
@@ -46,19 +53,6 @@ namespace MusicDownloadLib
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
-        }
-
-        public List<(string Tilte, string Url)> GetPlayListToDownload(string channelId, VideoGathering vidGad)
-        {
-            var list = vidGad.GetAllPlaylistsTitles(channelId);
-            int i = 0;
-            foreach (var item in list)
-            {
-                Console.WriteLine($"{i++}: " +  item.Title);
-            }
-            Console.WriteLine("Podaj Playlistę (NR) którą chcesz pobrać");
-            int PlaylistNr = Convert.ToInt16(Console.ReadLine()); //Nr Playlisty wybranej przez użytkownika
-            return vidGad.GetMusicFromPlaylist(list[PlaylistNr].Url);
         }
     }
 }
