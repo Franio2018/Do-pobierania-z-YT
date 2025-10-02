@@ -1,13 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
 namespace MusicDownloadUI
 {
     public partial class Form1 : Form
@@ -32,13 +22,13 @@ namespace MusicDownloadUI
             // === LEWY PANEL ===
             var playlistPanel = new Panel { Dock = DockStyle.Fill };
 
-            var btnShowAll = new Button { Text = "Show All", Dock = DockStyle.Top };
-            var btnRefresh = new Button { Text = "Refresh", Dock = DockStyle.Top };
-            var listPlaylists = new ListBox { Dock = DockStyle.Fill };
+            var btnShowAll = new Button { Text = "Show All", Dock = DockStyle.Top, Height = 40 };
+            var btnRefresh = new Button { Text = "Refresh", Dock = DockStyle.Top, Height = 40 };
+            var listPlaylists = new ListBox { Dock = DockStyle.Fill};
 
-            playlistPanel.Controls.Add(listPlaylists);
-            playlistPanel.Controls.Add(btnRefresh);
             playlistPanel.Controls.Add(btnShowAll);
+            playlistPanel.Controls.Add(btnRefresh);
+            playlistPanel.Controls.Add(listPlaylists);
 
             split.Panel1.Controls.Add(playlistPanel);
 
@@ -46,10 +36,12 @@ namespace MusicDownloadUI
             var rightPanel = new Panel { Dock = DockStyle.Fill };
 
             // Wyszukiwarka
-            var txtFilter = new TextBox { 
+            var txtFilter = new TextBox
+            {
                 Dock = DockStyle.Top,
                 ForeColor = Color.Gray,
-                Text = "Filter videos..." };
+                Text = "Filter videos..."
+            };
 
             txtFilter.GotFocus += (s, e) =>
             {
@@ -71,7 +63,7 @@ namespace MusicDownloadUI
 
             rightPanel.Controls.Add(txtFilter);
 
-            // Lista filmów
+            // Lista film�w
             var videoList = new ListView
             {
                 Dock = DockStyle.Fill,
@@ -112,7 +104,5 @@ namespace MusicDownloadUI
 
             Controls.Add(bottomPanel);
         }
-
     }
-
 }
