@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\temp\MusicDownloadLib.csproj" />
+    <ProjectReference Include="..\Do pobierania z YT\Do pobierania z YT.csproj" />
   </ItemGroup>
 
   <ItemGroup>

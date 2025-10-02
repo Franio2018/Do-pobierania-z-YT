@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDownloadUI", "MusicDow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDownloadLibTests", "MusicDownloadLibTests\MusicDownloadLibTests.csproj", "{2DD95C68-F2B8-4C2A-B120-0F18ABBA560A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDownloadLib", "temp\MusicDownloadLib.csproj", "{19598887-7D54-426B-8F73-534AC620189F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDownloadLib", "MusicDownloadLib\MusicDownloadLib.csproj", "{19598887-7D54-426B-8F73-534AC620189F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
