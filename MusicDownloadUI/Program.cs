@@ -1,4 +1,4 @@
-namespace temp
+namespace MusicDownloadUI
 {
     internal static class Program
     {

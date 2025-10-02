@@ -1,4 +1,4 @@
-﻿namespace temp
+﻿namespace MusicDownloadUI
 {
     partial class Form1
     {
