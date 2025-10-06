@@ -45,7 +45,7 @@ namespace MusicDownloadLib
                 // Request playlist items
                 var playlistItemsListRequest = youtubeService.PlaylistItems.List("snippet");
                 playlistItemsListRequest.PlaylistId = apiPlaylist.Id;
-                playlistItemsListRequest.MaxResults = 50; // Fetch up to 50 items in one request
+                playlistItemsListRequest.MaxResults = 500; // Fetch up to 500 items in one request
 
                 // Execute the request and get the response
                 var playlistItemsListResponse = playlistItemsListRequest.Execute();
@@ -102,5 +102,11 @@ namespace MusicDownloadLib
         {
             return [.. videos];
         }
+
+        public string GetTitle()
+        {
+            return apiPlaylist.Snippet.Title;
+        }
+
     }
 }

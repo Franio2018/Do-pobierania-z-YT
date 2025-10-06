@@ -1,108 +1,126 @@
+using DOPOBIERANIAZYT;
+using MusicDownloadLib;
+using System.Net;
+using Image = System.Drawing.Image;
+
 namespace MusicDownloadUI
 {
     public partial class Form1 : Form
     {
+        private List<Google.Apis.YouTube.v3.Data.PlaylistItem> allVideos = new();
+
+        private DOPOBIERANIAZYT.Test test = new("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
         public Form1()
         {
             InitializeComponent();
             SetupUI();
+            test.channel.playlists.ForEach(playlist => playlistList.Items.Add(playlist.GetTitle()));
         }
 
-        private void SetupUI()
+        private void playlistList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Split na playlisty/filmy
-            var split = new SplitContainer
+            videosList.Items.Clear();
+            int selectedIndex = playlistList.SelectedIndex;
+            if (selectedIndex >= 0)
             {
-                Dock = DockStyle.Fill,
-                Orientation = Orientation.Vertical,
-                SplitterDistance = 40
-            };
-            Controls.Add(split);
-
-            // === LEWY PANEL ===
-            var playlistPanel = new Panel { Dock = DockStyle.Fill };
-
-            var btnShowAll = new Button { Text = "Show All", Dock = DockStyle.Top, Height = 40 };
-            var btnRefresh = new Button { Text = "Refresh", Dock = DockStyle.Top, Height = 40 };
-            var listPlaylists = new ListBox { Dock = DockStyle.Fill};
-
-            playlistPanel.Controls.Add(btnShowAll);
-            playlistPanel.Controls.Add(btnRefresh);
-            playlistPanel.Controls.Add(listPlaylists);
-
-            split.Panel1.Controls.Add(playlistPanel);
-
-            // === PRAWY PANEL ===
-            var rightPanel = new Panel { Dock = DockStyle.Fill };
-
-            // Wyszukiwarka
-            var txtFilter = new TextBox
-            {
-                Dock = DockStyle.Top,
-                ForeColor = Color.Gray,
-                Text = "Filter videos..."
-            };
-
-            txtFilter.GotFocus += (s, e) =>
-            {
-                if (txtFilter.ForeColor == Color.Gray)
+                Playlist selectedPlaylist = test.channel.GetPlaylist(selectedIndex);
+                if (selectedPlaylist != null)
                 {
-                    txtFilter.Text = "";
-                    txtFilter.ForeColor = Color.Black;
+                    ShowVideosInList(selectedPlaylist);
                 }
-            };
-
-            txtFilter.LostFocus += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(txtFilter.Text))
-                {
-                    txtFilter.Text = "Filter videos...";
-                    txtFilter.ForeColor = Color.Gray;
-                }
-            };
-
-            rightPanel.Controls.Add(txtFilter);
-
-            // Lista filmów
-            var videoList = new ListView
-            {
-                Dock = DockStyle.Fill,
-                View = View.Details,
-                CheckBoxes = true,
-                FullRowSelect = true
-            };
-            videoList.Columns.Add("Thumbnail", 100);
-            videoList.Columns.Add("Title", 250);
-            videoList.Columns.Add("Duration", 80);
-            videoList.Columns.Add("Published", 120);
-            rightPanel.Controls.Add(videoList);
-
-
-            split.Panel2.Controls.Add(rightPanel);
-
-            // === DOLNY PANEL ===
-            var bottomPanel = new Panel { Dock = DockStyle.Bottom, Height = 80 };
-
-            var cmbQuality = new ComboBox { Dock = DockStyle.Left, Width = 120 };
-            cmbQuality.Items.AddRange(new[] { "Audio only", "720p", "1080p" });
-
-            var btnDownload = new Button { Text = "Download", Dock = DockStyle.Left, Width = 120 };
-            var progress = new ProgressBar { Dock = DockStyle.Top, Height = 20 };
-
-            var logBox = new TextBox
-            {
-                Dock = DockStyle.Bottom,
-                Height = 40,
-                Multiline = true,
-                ReadOnly = true
-            };
-
-            bottomPanel.Controls.Add(progress);
-            bottomPanel.Controls.Add(btnDownload);
-            bottomPanel.Controls.Add(cmbQuality);
-            bottomPanel.Controls.Add(logBox);
-
-            Controls.Add(bottomPanel);
+            }
         }
+
+        private void showAllButton_Click(object sender, EventArgs e)
+        {
+            videosList.Items.Clear();
+
+            foreach (var playlist in test.channel.playlists)
+            {
+                ShowVideosInList(playlist);
+            }
+        }
+
+        private void ShowVideosInList(IPlaylist playlist)
+        {
+            ImageList imageList = new ImageList();
+            imageList.ImageSize = new Size(120, 90);
+            videosList.LargeImageList = imageList;
+            videosList.View = View.LargeIcon;
+
+            allVideos = playlist.GetVideos(); // store original videos
+
+            foreach (var video in playlist.GetVideos())
+            {
+                using (var client = new WebClient())
+                {
+                    var data = client.DownloadData(video.Snippet.Thumbnails.Default__.Url);
+                    using (var ms = new MemoryStream(data))
+                    {
+                        Image img = Image.FromStream(ms);
+                        imageList.Images.Add(img);
+                    }
+                }
+
+                var item = new ListViewItem
+                {
+                    ImageIndex = imageList.Images.Count - 1,
+                    Text = video.Snippet.Title
+                };
+
+                videosList.Items.Add(item);
+            }
+        }
+
+        private void searchBar_TextChanged(object sender, EventArgs e)
+        {
+            string query = searchBar.Text.Trim().ToLower();
+
+            if (string.IsNullOrEmpty(query) || query == "filter videos...")
+            {
+                // Show all
+                ShowFilteredVideos(allVideos);
+            }
+            else
+            {
+                var filtered = allVideos
+                    .Where(v => v.Snippet.Title.ToLower().Contains(query))
+                    .ToList();
+
+                ShowFilteredVideos(filtered);
+            }
+        }
+
+        private void ShowFilteredVideos(List<Google.Apis.YouTube.v3.Data.PlaylistItem> videos)
+        {
+            videosList.Items.Clear();
+
+            ImageList imageList = new ImageList();
+            imageList.ImageSize = new Size(120, 90);
+            videosList.LargeImageList = imageList;
+            videosList.View = View.LargeIcon;
+
+            foreach (var video in videos)
+            {
+                using (var client = new WebClient())
+                {
+                    var data = client.DownloadData(video.Snippet.Thumbnails.Default__.Url);
+                    using (var ms = new MemoryStream(data))
+                    {
+                        Image img = Image.FromStream(ms);
+                        imageList.Images.Add(img);
+                    }
+                }
+
+                var item = new ListViewItem
+                {
+                    ImageIndex = imageList.Images.Count - 1,
+                    Text = video.Snippet.Title
+                };
+
+                videosList.Items.Add(item);
+            }
+        }
+
     }
 }
