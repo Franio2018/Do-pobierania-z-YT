@@ -17,6 +17,7 @@ namespace MusicDownloadUI
 
         private void playlistList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            videosList.Items.Clear();
             int selectedIndex = playlistList.SelectedIndex;
             if (selectedIndex >= 0) 
             {
@@ -34,19 +35,12 @@ namespace MusicDownloadUI
 
             foreach (var playlist in test.channel.playlists)
             {
-                var videos = playlist.GetVideos();
-
-                foreach (var video in videos)
-                {
-                    videosList.Items.Add(video.Snippet.Title);
-                }
+                ShowVideosInList(playlist);
             }
         }
 
         private void ShowVideosInList(IPlaylist playlist)
-        {
-            videosList.Items.Clear();
-
+        { 
             ImageList imageList = new ImageList();
             imageList.ImageSize = new Size(120, 90);
             videosList.LargeImageList = imageList;
