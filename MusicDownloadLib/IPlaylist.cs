@@ -2,7 +2,7 @@
 
 namespace MusicDownloadLib
 {
-    internal interface IPlaylist
+    public interface IPlaylist
     {
         public Google.Apis.YouTube.v3.Data.Playlist apiPlaylist { get; }
 
@@ -12,6 +12,7 @@ namespace MusicDownloadLib
         public bool RemoveRange(int index, int count);
         public bool RemoveVideoById(string id);
         public bool RemoveAll();
+        public string GetPlaylistTitle();
 
     }
 }

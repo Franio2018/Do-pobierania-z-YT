@@ -102,5 +102,11 @@ namespace MusicDownloadLib
         {
             return [.. videos];
         }
+
+        public string GetPlaylistTitle()
+        {
+            return apiPlaylist.Snippet.Title;
+        }
+
     }
 }
