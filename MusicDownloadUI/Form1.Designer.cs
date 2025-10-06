@@ -161,6 +161,7 @@
             searchBar.Size = new Size(406, 27);
             searchBar.TabIndex = 0;
             searchBar.Text = "\"Filter videos...\"";
+            searchBar.TextChanged += searchBar_TextChanged;
             // 
             // Form1
             // 
