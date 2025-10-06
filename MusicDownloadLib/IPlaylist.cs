@@ -12,7 +12,7 @@ namespace MusicDownloadLib
         public bool RemoveRange(int index, int count);
         public bool RemoveVideoById(string id);
         public bool RemoveAll();
-        public string GetPlaylistTitle();
+        public string GetTitle();
 
     }
 }

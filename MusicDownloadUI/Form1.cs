@@ -12,7 +12,7 @@ namespace MusicDownloadUI
         {
             InitializeComponent();
             SetupUI();
-            test.channel.playlists.ForEach(playlist => playlistList.Items.Add(playlist.apiPlaylist.Snippet.Title));
+            test.channel.playlists.ForEach(playlist => playlistList.Items.Add(playlist.GetTitle()));
         }
 
         private void playlistList_SelectedIndexChanged(object sender, EventArgs e)

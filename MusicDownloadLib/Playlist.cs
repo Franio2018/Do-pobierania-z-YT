@@ -103,7 +103,7 @@ namespace MusicDownloadLib
             return [.. videos];
         }
 
-        public string GetPlaylistTitle()
+        public string GetTitle()
         {
             return apiPlaylist.Snippet.Title;
         }
