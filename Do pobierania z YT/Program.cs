@@ -14,7 +14,7 @@ namespace DOPOBIERANIAZYT
             channel.videos.ForEach(v => Console.WriteLine(v.Snippet.Title));
 
             int numerator = 0;
-            channel.playlists.ForEach(p => Console.WriteLine(numerator++ + " " + p.apiPlaylist.Snippet.Title));
+            channel.playlists.ForEach(p => Console.WriteLine(numerator++ + " " + p.GetPlaylistTitle()));
             int index = Convert.ToInt32(Console.ReadLine());
             Playlist playlist = channel.GetPlaylist(index);
 

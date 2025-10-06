@@ -1,6 +1,7 @@
 using DOPOBIERANIAZYT;
 using MusicDownloadLib;
-using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using Image = System.Drawing.Image;
 
 namespace MusicDownloadUI
 {
@@ -22,9 +23,7 @@ namespace MusicDownloadUI
                 Playlist selectedPlaylist = test.channel.GetPlaylist(selectedIndex);
                 if (selectedPlaylist != null)
                 {
-                    videosList.Items.Clear();
-                    selectedPlaylist.GetVideos()
-                        .ForEach(video => videosList.Items.Add(video.Snippet.Title));
+                    ShowVideosInList(selectedPlaylist);
                 }
             }
         }
@@ -41,6 +40,37 @@ namespace MusicDownloadUI
                 {
                     videosList.Items.Add(video.Snippet.Title);
                 }
+            }
+        }
+
+        private void ShowVideosInList(IPlaylist playlist)
+        {
+            videosList.Items.Clear();
+
+            ImageList imageList = new ImageList();
+            imageList.ImageSize = new Size(120, 90);
+            videosList.LargeImageList = imageList;
+            videosList.View = View.LargeIcon;
+
+            foreach (var video in playlist.GetVideos())
+            {
+                using (var client = new WebClient())
+                {
+                    var data = client.DownloadData(video.Snippet.Thumbnails.Default__.Url);
+                    using (var ms = new MemoryStream(data))
+                    {
+                        Image img = Image.FromStream(ms);
+                        imageList.Images.Add(img);
+                    }
+                }
+
+                var item = new ListViewItem
+                {
+                    ImageIndex = imageList.Images.Count - 1,
+                    Text = video.Snippet.Title
+                };
+
+                videosList.Items.Add(item);
             }
         }
     }

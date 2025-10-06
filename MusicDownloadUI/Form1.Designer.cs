@@ -207,8 +207,8 @@
         {
             videosList.Columns.Add("Thumbnail", 100);
             videosList.Columns.Add("Title", 250);
-            videosList.Columns.Add("Duration", 80);
-            videosList.Columns.Add("Published", 120);
+            //videosList.Columns.Add("Duration", 80);
+            //videosList.Columns.Add("Published", 120);
         }
 
         private void SearchBarSetUp()
