@@ -1,11 +1,6 @@
 ﻿using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicDownloadLib
 {
@@ -35,7 +30,7 @@ namespace MusicDownloadLib
         {
             var playlistRequest = youtubeService.PlaylistItems.List("snippet");
             playlistRequest.PlaylistId = apiPlaylist.Id;
-            playlistRequest.MaxResults = 50;
+            playlistRequest.MaxResults = 500;
             
             try
             {

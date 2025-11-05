@@ -18,26 +18,7 @@ namespace DOPOBIERANIAZYT
             int index = Convert.ToInt32(Console.ReadLine());
             Playlist playlist = channel.GetPlaylist(index);
 
-            return;
-
-            var semaphore = new SemaphoreSlim(5); // max 5 jednocześnie
-            var tasks = playlist.GetVideos().Select(async v =>
-            {
-                await semaphore.WaitAsync();
-                try
-                {
-                    await v.DownloadAsync();
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }).ToList();
-
-            // Czekanie na wszystkie
-            await Task.WhenAll(tasks);
-
-            return;
+            playlist.GetVideos().ForEach(v => v.DownloadAsync().Wait());
         }
     }
 

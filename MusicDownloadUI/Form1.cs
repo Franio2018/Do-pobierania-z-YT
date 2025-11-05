@@ -1,6 +1,8 @@
 using DOPOBIERANIAZYT;
 using MusicDownloadLib;
+using System.Diagnostics.Contracts;
 using System.Net;
+using System.Security.Cryptography;
 using Image = System.Drawing.Image;
 
 namespace MusicDownloadUI
@@ -122,5 +124,50 @@ namespace MusicDownloadUI
             }
         }
 
+        private async void downloadButton_Click(object sender, EventArgs e)
+        {
+            if (allVideos == null || allVideos.Count == 0)
+                return;
+
+            int MAX_CONCURRENT_DOWNLOADS = Environment.ProcessorCount;
+            var semaphore = new SemaphoreSlim(MAX_CONCURRENT_DOWNLOADS);
+
+            int completed = 0;
+            int total = allVideos.Count;
+
+            progressBar.Minimum = 0;
+            progressBar.Maximum = total;
+            progressBar.Value = 0;
+
+            int failed = 0;
+
+            var downloadTasks = allVideos.Select(async video =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    messageWindow.Text += await video.DownloadAsync(); // your async download method
+                }
+                catch (Exception ex)
+                {
+                    // Optional: handle per-video errors
+                    Console.WriteLine($"Error downloading {video.Snippet.Title}: {ex.Message}");
+                    failed++;
+                }
+                finally
+                {
+                    semaphore.Release();
+                    Interlocked.Increment(ref completed);
+                    progressBar.Invoke((Action)(() => progressBar.Value = completed));
+                }
+            }).ToList();
+
+            await Task.WhenAll(downloadTasks);
+
+            MessageBox.Show("Downloads completed!\n" +
+                $"Success: {allVideos.Count-failed}\n" +
+                $"Fail: {failed}"
+                ,"Info",MessageBoxButtons.OK);
+        }
     }
 }

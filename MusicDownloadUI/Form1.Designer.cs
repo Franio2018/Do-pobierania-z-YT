@@ -39,6 +39,8 @@
             videosList = new ListView();
             selectAllButton = new Button();
             searchBar = new TextBox();
+            chooseChanelButton = new Button();
+            optionsButton = new Button();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -72,6 +74,7 @@
             downloadButton.TabIndex = 2;
             downloadButton.Text = "Download";
             downloadButton.UseVisualStyleBackColor = true;
+            downloadButton.Click += downloadButton_Click;
             // 
             // qualityCommboBox
             // 
@@ -90,6 +93,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            splitContainer1.Panel1.Controls.Add(optionsButton);
+            splitContainer1.Panel1.Controls.Add(chooseChanelButton);
             splitContainer1.Panel1.Controls.Add(playlistList);
             splitContainer1.Panel1.Controls.Add(refreshButton);
             splitContainer1.Panel1.Controls.Add(showAllButton);
@@ -107,18 +112,18 @@
             // 
             playlistList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             playlistList.FormattingEnabled = true;
-            playlistList.Location = new Point(4, 95);
+            playlistList.Location = new Point(4, 115);
             playlistList.Name = "playlistList";
-            playlistList.Size = new Size(258, 284);
+            playlistList.Size = new Size(258, 264);
             playlistList.TabIndex = 2;
             playlistList.SelectedIndexChanged += playlistList_SelectedIndexChanged;
             // 
             // refreshButton
             // 
             refreshButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            refreshButton.Location = new Point(4, 49);
+            refreshButton.Location = new Point(4, 77);
             refreshButton.Name = "refreshButton";
-            refreshButton.Size = new Size(259, 40);
+            refreshButton.Size = new Size(259, 30);
             refreshButton.TabIndex = 1;
             refreshButton.Text = "Refresh";
             refreshButton.UseVisualStyleBackColor = true;
@@ -126,9 +131,9 @@
             // showAllButton
             // 
             showAllButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            showAllButton.Location = new Point(3, 3);
+            showAllButton.Location = new Point(3, 43);
             showAllButton.Name = "showAllButton";
-            showAllButton.Size = new Size(259, 40);
+            showAllButton.Size = new Size(259, 30);
             showAllButton.TabIndex = 0;
             showAllButton.Text = "Show All";
             showAllButton.UseVisualStyleBackColor = true;
@@ -162,6 +167,24 @@
             searchBar.TabIndex = 0;
             searchBar.Text = "\"Filter videos...\"";
             searchBar.TextChanged += searchBar_TextChanged;
+            // 
+            // chooseChanelButton
+            // 
+            chooseChanelButton.Location = new Point(40, 8);
+            chooseChanelButton.Name = "chooseChanelButton";
+            chooseChanelButton.Size = new Size(222, 30);
+            chooseChanelButton.TabIndex = 3;
+            chooseChanelButton.Text = "Choose Channel";
+            chooseChanelButton.UseVisualStyleBackColor = true;
+            // 
+            // optionsButton
+            // 
+            optionsButton.Location = new Point(4, 9);
+            optionsButton.Name = "optionsButton";
+            optionsButton.Size = new Size(30, 30);
+            optionsButton.TabIndex = 4;
+            optionsButton.Text = "...";
+            optionsButton.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -250,5 +273,7 @@
         private TextBox searchBar;
         private Button selectAllButton;
         private ListView videosList;
+        private Button chooseChanelButton;
+        private Button optionsButton;
     }
 }

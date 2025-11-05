@@ -14,9 +14,9 @@ namespace MusicDownloadLib
     {
         private static readonly string outputFilePath = @"C:\Users\Franek\OneDrive - BAKK Sp. z o.o\Pulpit\Joanna Chmilelewska\"; // Final merged file
 
-        public static async Task DownloadAsync(this PlaylistItem videoData) 
-        { 
-        
+        public static async Task<string> DownloadAsync(this PlaylistItem videoData) 
+        {
+            string result = "";
             var youtube = new YoutubeClient();
             try
             {
@@ -28,7 +28,7 @@ namespace MusicDownloadLib
                 if (audioStreamInfo == null)
                 {
                     Console.WriteLine("Could not find suitable audio streams.");
-                    return;
+                    return "Could not find suitable audio streams.";
                 }
 
                 var video = await youtube.Videos.GetAsync("https://www.youtube.com/watch?v=" + videoData.Snippet.ResourceId.VideoId);
@@ -48,11 +48,14 @@ namespace MusicDownloadLib
                 await youtube.Videos.Streams.DownloadAsync(audioStreamInfo, audioFilePath, progressHandler);
 
                 Console.WriteLine($"\nDownload completed: {audioFilePath}");
+                result = $"\nDownload completed: {audioFilePath}";
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                return $"An error occurred: {ex.Message}";
             }
+            return result;
         }
     }
 }
