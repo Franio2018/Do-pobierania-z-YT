@@ -8,8 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Do pobierania z YT\Do pobierania z YT.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\MusicDownloadLib\MusicDownloadLib.csproj" />
+    </ItemGroup>
 
 </Project>

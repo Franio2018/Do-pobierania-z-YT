@@ -83,6 +83,17 @@ namespace MusicDownloadLib.Tests
             var playlist = new Playlist(new List<PlaylistItem>());
             playlist.GetVideo(0);
         }
-    }
 
+        [TestMethod]
+        public void RemoveVideo_WithNegativeIndex_ShouldReturnFalse()
+        {
+            var playlist = new Playlist(new List<PlaylistItem>
+            {
+                new PlaylistItem { Id = "v1" }
+            });
+
+            Assert.IsFalse(playlist.RemoveVideo(-1));
+            Assert.AreEqual(1, playlist.GetVideos().Count);
+        }
+    }
 }

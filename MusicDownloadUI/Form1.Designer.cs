@@ -39,6 +39,8 @@
             videosList = new ListView();
             selectAllButton = new Button();
             searchBar = new TextBox();
+            channelUrlTextBox = new TextBox();
+            folderButton = new Button();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -72,14 +74,15 @@
             downloadButton.TabIndex = 2;
             downloadButton.Text = "Download";
             downloadButton.UseVisualStyleBackColor = true;
+            downloadButton.Click += downloadButton_Click;
             // 
             // qualityCommboBox
             // 
             qualityCommboBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             qualityCommboBox.FormattingEnabled = true;
-            qualityCommboBox.Location = new Point(3, 399);
+            qualityCommboBox.Location = new Point(76, 399);
             qualityCommboBox.Name = "qualityCommboBox";
-            qualityCommboBox.Size = new Size(151, 28);
+            qualityCommboBox.Size = new Size(78, 28);
             qualityCommboBox.TabIndex = 3;
             // 
             // splitContainer1
@@ -93,6 +96,7 @@
             splitContainer1.Panel1.Controls.Add(playlistList);
             splitContainer1.Panel1.Controls.Add(refreshButton);
             splitContainer1.Panel1.Controls.Add(showAllButton);
+            splitContainer1.Panel1.Controls.Add(channelUrlTextBox);
             // 
             // splitContainer1.Panel2
             // 
@@ -107,26 +111,27 @@
             // 
             playlistList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             playlistList.FormattingEnabled = true;
-            playlistList.Location = new Point(4, 95);
+            playlistList.Location = new Point(4, 127);
             playlistList.Name = "playlistList";
-            playlistList.Size = new Size(258, 284);
+            playlistList.Size = new Size(258, 252);
             playlistList.TabIndex = 2;
             playlistList.SelectedIndexChanged += playlistList_SelectedIndexChanged;
             // 
             // refreshButton
             // 
             refreshButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            refreshButton.Location = new Point(4, 49);
+            refreshButton.Location = new Point(4, 81);
             refreshButton.Name = "refreshButton";
             refreshButton.Size = new Size(259, 40);
             refreshButton.TabIndex = 1;
             refreshButton.Text = "Refresh";
             refreshButton.UseVisualStyleBackColor = true;
+            refreshButton.Click += refreshButton_Click;
             // 
             // showAllButton
             // 
             showAllButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            showAllButton.Location = new Point(3, 3);
+            showAllButton.Location = new Point(3, 36);
             showAllButton.Name = "showAllButton";
             showAllButton.Size = new Size(259, 40);
             showAllButton.TabIndex = 0;
@@ -152,6 +157,28 @@
             selectAllButton.TabIndex = 1;
             selectAllButton.Text = "Select All";
             selectAllButton.UseVisualStyleBackColor = true;
+            selectAllButton.Click += selectAllButton_Click;
+            // 
+            // channelUrlTextBox
+            // 
+            channelUrlTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            channelUrlTextBox.Location = new Point(3, 3);
+            channelUrlTextBox.Name = "channelUrlTextBox";
+            channelUrlTextBox.PlaceholderText = "Channel URL...";
+            channelUrlTextBox.Size = new Size(259, 27);
+            channelUrlTextBox.TabIndex = 3;
+            channelUrlTextBox.Text = "https://www.youtube.com/@NFmusic";
+            // 
+            // folderButton
+            // 
+            folderButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            folderButton.Location = new Point(3, 395);
+            folderButton.Name = "folderButton";
+            folderButton.Size = new Size(70, 34);
+            folderButton.TabIndex = 5;
+            folderButton.Text = "Folder";
+            folderButton.UseVisualStyleBackColor = true;
+            folderButton.Click += folderButton_Click;
             // 
             // searchBar
             // 
@@ -169,6 +196,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 505);
             Controls.Add(splitContainer1);
+            Controls.Add(folderButton);
             Controls.Add(qualityCommboBox);
             Controls.Add(downloadButton);
             Controls.Add(progressBar);
@@ -176,6 +204,7 @@
             Name = "Form1";
             Text = "Form1";
             splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
             splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -189,11 +218,21 @@
             VideosListSetUp();
             QualityCommboBoxSetUp();
             MessageWindowSetUp();
+            channelUrlTextBox.KeyDown += async (_, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true;
+                    await LoadChannelAsync();
+                }
+            };
         }
 
         private void QualityCommboBoxSetUp()
         {
             qualityCommboBox.Items.AddRange(["Audio only", "720p", "1080p"]);
+            qualityCommboBox.SelectedIndex = 0;
+            qualityCommboBox.DropDownStyle = ComboBoxStyle.DropDownList;
         }
 
         private void MessageWindowSetUp()
@@ -206,10 +245,10 @@
 
         private void VideosListSetUp()
         {
+            videosList.MultiSelect = true;
+            videosList.HideSelection = false;
             videosList.Columns.Add("Thumbnail", 100);
             videosList.Columns.Add("Title", 250);
-            //videosList.Columns.Add("Duration", 80);
-            //videosList.Columns.Add("Published", 120);
         }
 
         private void SearchBarSetUp()
@@ -250,5 +289,7 @@
         private TextBox searchBar;
         private Button selectAllButton;
         private ListView videosList;
+        private TextBox channelUrlTextBox = null!;
+        private Button folderButton = null!;
     }
 }

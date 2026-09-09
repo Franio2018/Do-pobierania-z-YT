@@ -1,53 +1,22 @@
 ﻿using MusicDownloadLib;
-using System.Net.NetworkInformation;
-using System.Threading.Channels;
 
 namespace DOPOBIERANIAZYT
 {
     internal class Program
     {
-        private static async Task Main(string[] args)
+        private static void Main(string[] args)
         {
-            IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
-            //IChannel channel = new MusicDownloadLib.Channel("https://www.youtube.com/@Kowi-v9j");
+            IChannel channel = new Channel("https://www.youtube.com/channel/UCoRR6OLuIZ2-5VxtnQIaN2w");
 
-            channel.videos.ForEach(v => Console.WriteLine(v.Snippet.Title));
+            Console.WriteLine($"Channel: {channel.name} ({channel.id})");
+            Console.WriteLine();
+            Console.WriteLine("Uploads:");
+            channel.videos.ForEach(v => Console.WriteLine(v.Snippet?.Title));
 
+            Console.WriteLine();
+            Console.WriteLine("Playlists:");
             int numerator = 0;
             channel.playlists.ForEach(p => Console.WriteLine(numerator++ + " " + p.GetTitle()));
-            int index = Convert.ToInt32(Console.ReadLine());
-            Playlist playlist = channel.GetPlaylist(index);
-
-            return;
-
-            var semaphore = new SemaphoreSlim(5); // max 5 jednocześnie
-            var tasks = playlist.GetVideos().Select(async v =>
-            {
-                await semaphore.WaitAsync();
-                try
-                {
-                    await v.DownloadAsync();
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }).ToList();
-
-            // Czekanie na wszystkie
-            await Task.WhenAll(tasks);
-
-            return;
-        }
-    }
-
-    public class Test
-    {
-        public IChannel channel { get; private set; }
-
-        public Test(string url)
-        {
-            channel = new MusicDownloadLib.Channel(url);
         }
     }
 }

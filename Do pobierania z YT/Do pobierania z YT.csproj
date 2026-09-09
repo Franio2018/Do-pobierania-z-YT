@@ -10,10 +10,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="VideoLibrary" Version="3.2.9" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\MusicDownloadLib\MusicDownloadLib.csproj" />
 	</ItemGroup>
 
