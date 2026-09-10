@@ -124,5 +124,14 @@ namespace MusicDownloadLib.Tests
             Assert.AreEqual("dQw4w9WgXcQ", file.Listens[0].VideoId);
             Assert.AreEqual(3, file.Listens[0].ListenCount);
         }
+
+        [TestMethod]
+        public void TryDelete_RemovesExistingFile()
+        {
+            var path = Path.Combine(Path.GetTempPath(), $"pending-listens-{Guid.NewGuid():N}.json");
+            File.WriteAllText(path, "{}");
+            Assert.IsTrue(ListenFile.TryDelete(path));
+            Assert.IsFalse(File.Exists(path));
+        }
     }
 }

@@ -3,6 +3,11 @@ Install (Chrome or Edge):
 2. Enable Developer mode
 3. Load unpacked -> select this BrowserExtension folder
 4. Pin the extension and play YouTube until a video reaches ~80%
+5. If you already had the extension loaded, click Reload after updating these files
 
 If MusicDownloadUI is running, listens arrive live (http://127.0.0.1:17823).
-If it is closed, click the extension icon -> Export JSON, then in the app use Load listens.
+If it is closed, the extension writes Downloads\pending-listens.json by itself.
+When you open the app (with an account set), that file is imported automatically.
+If YouTube is still open, the extension also pushes stored listens to the app within a few seconds.
+
+Export JSON is optional (backup / another folder). Load listens in the app is the manual fallback.

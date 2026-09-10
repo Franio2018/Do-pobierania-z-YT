@@ -53,6 +53,35 @@ namespace MusicDownloadLib.Library
                 "Downloads",
                 "pending-listens.json");
 
+        public static IReadOnlyList<string> FindPendingFiles()
+        {
+            var paths = new List<string>();
+            AddExisting(paths, PendingPath);
+
+            var downloadsDir = Path.GetDirectoryName(DownloadsPath);
+            if (downloadsDir is not null && Directory.Exists(downloadsDir))
+            {
+                foreach (var path in Directory.EnumerateFiles(downloadsDir, "pending-listens*.json"))
+                    AddExisting(paths, path);
+            }
+
+            return paths;
+        }
+
+        public static bool TryDelete(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static ListenExportFile Parse(string json)
         {
             var file = JsonSerializer.Deserialize<ListenExportFile>(json, JsonOptions)
@@ -88,6 +117,15 @@ namespace MusicDownloadLib.Library
             }
 
             Save(PendingPath, file);
+        }
+
+        private static void AddExisting(List<string> paths, string path)
+        {
+            if (!File.Exists(path))
+                return;
+            if (paths.Exists(existing => string.Equals(existing, path, StringComparison.OrdinalIgnoreCase)))
+                return;
+            paths.Add(path);
         }
     }
 }

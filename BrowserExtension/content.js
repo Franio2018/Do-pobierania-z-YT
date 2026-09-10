@@ -84,5 +84,7 @@
 
   document.addEventListener("yt-navigate-finish", sync);
   setInterval(sync, 1500);
+  setInterval(() => chrome.runtime.sendMessage({ type: "sync" }), 15000);
+  chrome.runtime.sendMessage({ type: "sync" });
   sync();
 })();

@@ -87,6 +87,12 @@ namespace MusicDownloadUI
                     return;
                 BeginInvoke(() => ApplyIncomingListen(item));
             };
+            listenInbox.ListensReceived += items =>
+            {
+                if (IsDisposed)
+                    return;
+                BeginInvoke(() => ApplyIncomingListens(items));
+            };
 
             try
             {
@@ -111,6 +117,22 @@ namespace MusicDownloadUI
 
             library.AddOrIncrementListen(account.AccountId, item.VideoId, item.Title, item.Url);
             Log($"Listened: {item.Title}");
+        }
+
+        private void ApplyIncomingListens(IReadOnlyList<ListenExportItem> items)
+        {
+            var account = library.GetCurrentAccount();
+            if (account is null)
+            {
+                ListenFile.Save(ListenFile.PendingPath, new ListenExportFile { Listens = items.ToList() });
+                Log($"Queued {items.Count} listen(s) (set account to import)");
+                return;
+            }
+
+            var imported = library.ImportListens(account.AccountId, items);
+            Log($"Synced {imported} listen(s) from browser");
+            if (playlistList.SelectedIndex == RecentlyListenedIndex)
+                _ = ShowListenedAsync();
         }
 
         private async void importListensButton_Click(object? sender, EventArgs e)
@@ -143,24 +165,26 @@ namespace MusicDownloadUI
             if (accountId is null)
                 return;
 
-            foreach (var path in new[] { ListenFile.PendingPath, ListenFile.DownloadsPath })
+            foreach (var path in ListenFile.FindPendingFiles())
             {
-                if (File.Exists(path))
-                    ImportListensFromFile(accountId, path);
+                if (ImportListensFromFile(accountId, path))
+                    ListenFile.TryDelete(path);
             }
         }
 
-        private void ImportListensFromFile(string accountId, string path)
+        private bool ImportListensFromFile(string accountId, string path)
         {
             try
             {
                 var file = ListenFile.Load(path);
                 var imported = library.ImportListens(accountId, file.Listens);
                 Log($"Imported {imported} listen(s) from {path}");
+                return true;
             }
             catch (Exception ex)
             {
                 Log($"Could not import {path}: {ex.Message}");
+                return false;
             }
         }
 
@@ -210,6 +234,7 @@ namespace MusicDownloadUI
                 var account = library.SetCurrentAccount(loaded.id, loaded.name, loaded.url);
                 listenUrlTextBox.Text = account.Url ?? account.AccountId;
                 Log($"Account set: {account.Name} ({account.AccountId})");
+                TryImportPendingFiles();
             }
             catch (Exception ex)
             {

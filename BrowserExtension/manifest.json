@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "MusicDownload listens",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Records YouTube watches (80%+) for the MusicDownload desktop app. Does not download videos.",
-  "permissions": ["storage", "downloads"],
+  "permissions": ["storage", "downloads", "alarms"],
   "host_permissions": [
     "https://www.youtube.com/*",
     "http://127.0.0.1:17823/*"

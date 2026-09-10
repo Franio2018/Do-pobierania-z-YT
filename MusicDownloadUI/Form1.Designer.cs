@@ -53,17 +53,18 @@
             // messageWindow
             // 
             messageWindow.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            messageWindow.Location = new Point(3, 419);
+            messageWindow.Location = new Point(4, 408);
             messageWindow.Name = "messageWindow";
             messageWindow.ReadOnly = true;
-            messageWindow.Size = new Size(795, 84);
+            messageWindow.ScrollBars = RichTextBoxScrollBars.Vertical;
+            messageWindow.Size = new Size(795, 78);
             messageWindow.TabIndex = 0;
             messageWindow.Text = "";
             // 
             // progressBar
             // 
             progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            progressBar.Location = new Point(268, 381);
+            progressBar.Location = new Point(268, 370);
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(530, 32);
             progressBar.TabIndex = 1;
@@ -71,7 +72,7 @@
             // downloadButton
             // 
             downloadButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            downloadButton.Location = new Point(160, 381);
+            downloadButton.Location = new Point(160, 370);
             downloadButton.Name = "downloadButton";
             downloadButton.Size = new Size(102, 34);
             downloadButton.TabIndex = 2;
@@ -83,7 +84,7 @@
             // 
             qualityCommboBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             qualityCommboBox.FormattingEnabled = true;
-            qualityCommboBox.Location = new Point(76, 385);
+            qualityCommboBox.Location = new Point(76, 374);
             qualityCommboBox.Name = "qualityCommboBox";
             qualityCommboBox.Size = new Size(78, 28);
             qualityCommboBox.TabIndex = 3;
@@ -109,7 +110,7 @@
             splitContainer1.Panel2.Controls.Add(videosList);
             splitContainer1.Panel2.Controls.Add(selectAllButton);
             splitContainer1.Panel2.Controls.Add(searchBar);
-            splitContainer1.Size = new Size(798, 375);
+            splitContainer1.Size = new Size(798, 364);
             splitContainer1.SplitterDistance = 266;
             splitContainer1.TabIndex = 4;
             // 
@@ -191,7 +192,7 @@
             videosList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             videosList.Location = new Point(3, 36);
             videosList.Name = "videosList";
-            videosList.Size = new Size(522, 336);
+            videosList.Size = new Size(522, 325);
             videosList.TabIndex = 2;
             videosList.UseCompatibleStateImageBehavior = false;
             // 
@@ -219,7 +220,7 @@
             // folderButton
             // 
             folderButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            folderButton.Location = new Point(3, 381);
+            folderButton.Location = new Point(3, 370);
             folderButton.Name = "folderButton";
             folderButton.Size = new Size(70, 34);
             folderButton.TabIndex = 5;
@@ -231,7 +232,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 505);
+            ClientSize = new Size(800, 487);
             Controls.Add(splitContainer1);
             Controls.Add(folderButton);
             Controls.Add(qualityCommboBox);
@@ -282,8 +283,6 @@
 
         private void MessageWindowSetUp()
         {
-            messageWindow.Dock = DockStyle.Bottom;
-            messageWindow.Height = 40;
             messageWindow.Multiline = true;
             messageWindow.ReadOnly = true;
         }

@@ -14,6 +14,7 @@ namespace MusicDownloadUI
         private CancellationTokenSource? _cts;
 
         public event Action<ListenExportItem>? ListenReceived;
+        public event Action<IReadOnlyList<ListenExportItem>>? ListensReceived;
 
         public bool IsListening => _listener.IsListening;
 
@@ -98,6 +99,22 @@ namespace MusicDownloadUI
                     return;
                 }
 
+                if (request.HttpMethod == "POST" && path == "/listens")
+                {
+                    using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+                    var body = reader.ReadToEnd();
+                    if (!TryParseBatch(body, out var items))
+                    {
+                        Write(response, 400, """{"ok":false,"error":"invalid listens"}""", "application/json");
+                        return;
+                    }
+
+                    if (items.Count > 0)
+                        ListensReceived?.Invoke(items);
+                    Write(response, 200, """{"ok":true}""", "application/json");
+                    return;
+                }
+
                 Write(response, 404, """{"ok":false}""", "application/json");
             }
             catch
@@ -132,6 +149,35 @@ namespace MusicDownloadUI
                     ListenCount = 1,
                     ListenedAt = DateTimeOffset.UtcNow.ToString("O")
                 };
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool TryParseBatch(string body, out List<ListenExportItem> items)
+        {
+            items = new List<ListenExportItem>();
+            try
+            {
+                var file = ListenFile.Parse(body);
+                foreach (var item in file.Listens)
+                {
+                    if (!YouTubeUrl.TryGetVideoId(item.VideoId, out var videoId))
+                        continue;
+
+                    items.Add(new ListenExportItem
+                    {
+                        VideoId = videoId,
+                        Title = string.IsNullOrWhiteSpace(item.Title) ? videoId : item.Title.Trim(),
+                        Url = item.Url,
+                        ListenCount = Math.Max(1, item.ListenCount),
+                        ListenedAt = item.ListenedAt
+                    });
+                }
+
                 return true;
             }
             catch
