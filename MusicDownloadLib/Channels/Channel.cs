@@ -1,6 +1,7 @@
 ﻿using Google.Apis.YouTube.v3.Data;
+using Playlist = MusicDownloadLib.Playlists.Playlist;
 
-namespace MusicDownloadLib
+namespace MusicDownloadLib.Channels
 {
     public class Channel : IChannel, IComparable<Channel>
     {

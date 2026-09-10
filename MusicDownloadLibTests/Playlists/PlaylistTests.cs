@@ -1,11 +1,5 @@
 ﻿using Google.Apis.YouTube.v3.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MusicDownloadLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Playlist = MusicDownloadLib.Playlists.Playlist;
 
 namespace MusicDownloadLib.Tests
 {
@@ -17,8 +11,8 @@ namespace MusicDownloadLib.Tests
         {
             var playlist = new Playlist(new List<PlaylistItem>
             {
-            new PlaylistItem { Id = "v1" },
-            new PlaylistItem { Id = "v2" }
+                new PlaylistItem { Id = "v1" },
+                new PlaylistItem { Id = "v2" }
             });
 
             var result = playlist.RemoveAll();
@@ -32,9 +26,9 @@ namespace MusicDownloadLib.Tests
         {
             var playlist = new Playlist(new List<PlaylistItem>
             {
-            new PlaylistItem { Id = "v1" },
-            new PlaylistItem { Id = "v2" },
-            new PlaylistItem { Id = "v3" }
+                new PlaylistItem { Id = "v1" },
+                new PlaylistItem { Id = "v2" },
+                new PlaylistItem { Id = "v3" }
             });
 
             var result = playlist.RemoveRange(1, 1);
@@ -51,8 +45,8 @@ namespace MusicDownloadLib.Tests
         {
             var playlist = new Playlist(new List<PlaylistItem>
             {
-            new PlaylistItem { Id = "v1" },
-            new PlaylistItem { Id = "v2" }
+                new PlaylistItem { Id = "v1" },
+                new PlaylistItem { Id = "v2" }
             });
 
             var result = playlist.RemoveVideoById("v2");
@@ -67,7 +61,7 @@ namespace MusicDownloadLib.Tests
         {
             var playlist = new Playlist(new List<PlaylistItem>
             {
-            new PlaylistItem { Id = "v1" }
+                new PlaylistItem { Id = "v1" }
             });
 
             var video = playlist.GetVideo(0);

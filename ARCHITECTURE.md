@@ -6,10 +6,15 @@ Aplikacja .NET 8 do przeglądania kanału YouTube (playlisty i filmy) oraz pobie
 
 ```
 Do pobierania z YT.sln
-├── MusicDownloadLib          biblioteka (YouTube Data API + YoutubeExplode)
-├── MusicDownloadUI           WinForms — główny interfejs
-├── Do pobierania z YT        konsola — listowanie kanału
-└── MusicDownloadLibTests     MSTest
+├── MusicDownloadLib
+│   ├── YouTube/       klucz API, parser URL
+│   ├── Channels/      IChannel, Channel
+│   ├── Playlists/     IPlaylist, Playlist, TrackMapper
+│   ├── Downloads/     pobieranie audio, DownloadResult
+│   └── Library/       SQLite, konto, historia
+├── MusicDownloadUI           WinForms
+├── Do pobierania z YT        konsola
+└── MusicDownloadLibTests     te same foldery co biblioteka
 ```
 
 Zależności:
@@ -157,7 +162,28 @@ Główny ekran to `Form1`:
 - **Folder** — katalog zapisu (domyślnie `Muzyka\YouTube Downloads`),
 - pasek postępu i log na dole.
 
+- **Load listens** — import JSON z wtyczki (`pending-listens.json`).
+- Wtyczka `BrowserExtension` zapisuje odsłuchy (film ≥ 80%). Gdy UI działa, wysyła je na `http://127.0.0.1:17823`; gdy nie — **Export JSON**.
+
 Start: po `Shown` ładuje domyślny URL (`https://www.youtube.com/@NFmusic`) w tle.
+
+Lewa lista źródeł ma zawsze dwie pozycje na górze:
+
+1. **Recently listened** — utwory powiązane z aktualnym kontem (po pobraniu).
+2. **Download history** — ostatnie udane pobrania tego konta (unikalne po `VideoId`).
+
+Dalej są playlisty przeglądanego kanału. Pole **Your account ID or @handle** + **Set account** zapisuje, czyja to biblioteka. YouTube nie udostępnia historii oglądania po samym ID — konto tylko oddziela dane w lokalnej bazie. Kanał do przeglądania nadal bierze się z pola Channel URL.
+
+## Lokalna biblioteka (SQLite)
+
+`LibraryStore` trzyma plik `%LocalAppData%\MusicDownload\library.db`.
+
+| Tabela | Treść |
+|---|---|
+| `Listens` | `VideoId`, tytuł, URL, `ListenCount`, daty pierwszego i ostatniego odsłuchu |
+| `Downloads` | każda próba pobrania: ścieżka, `Success` / `Skipped` / `Failed`, błąd |
+
+To zastępuje ręczną playlistę na YouTube: użytkownik zgłasza co słuchał, UI pokazuje tę listę i z niej pobiera.
 
 ## Konsola
 
@@ -179,6 +205,7 @@ Katalog zapisu: `PlaylistItemExtension.OutputDirectory` (UI może go zmienić pr
 | Klasa | Charakter | Uwagi |
 |---|---|---|
 | `PlaylistTests` | jednostkowe, in-memory | konstruktor `Playlist(List<PlaylistItem>)` bez sieci |
+| `YouTubeUrlTests` / `LibraryStoreTests` | jednostkowe | parser URL i SQLite w temp |
 | `ChannelTests` | integracyjne | żywe YouTube Data API i klucz |
 
 Runner: MSTest (`EnableMSTestRunner`).
@@ -186,7 +213,8 @@ Runner: MSTest (`EnableMSTestRunner`).
 ## Stack
 
 - .NET 8 / C#
-- `Google.Apis.YouTube.v3` 1.70.x
-- `YoutubeExplode` 6.5.x
+- `Google.Apis.YouTube.v3` 1.76.x
+- `YoutubeExplode` 6.6.x
+- `Microsoft.Data.Sqlite` 8.x
 - Windows Forms
 - MSTest 3.6

@@ -1,4 +1,4 @@
-﻿using MusicDownloadLib;
+﻿using MusicDownloadLib.Channels;
 
 namespace DOPOBIERANIAZYT
 {

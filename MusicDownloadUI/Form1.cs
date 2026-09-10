@@ -1,32 +1,225 @@
 using Google.Apis.YouTube.v3.Data;
-using MusicDownloadLib;
-using Channel = MusicDownloadLib.Channel;
+using Channel = MusicDownloadLib.Channels.Channel;
 using Image = System.Drawing.Image;
 
 namespace MusicDownloadUI
 {
     public partial class Form1 : Form
     {
+        private const int RecentlyListenedIndex = 0;
+        private const int DownloadHistoryIndex = 1;
+        private const int ChannelPlaylistOffset = 2;
+
         private static readonly HttpClient Http = new();
 
+        private readonly LibraryStore library = new();
+        private readonly ListenInboxServer listenInbox = new();
         private Channel? channel;
         private List<PlaylistItem> allVideos = new();
         private int displayGeneration;
+        private bool updatingSources;
 
         public Form1()
         {
             InitializeComponent();
             SetupUI();
+            FormClosed += (_, _) =>
+            {
+                listenInbox.Dispose();
+                library.Dispose();
+            };
             Shown += async (_, _) =>
             {
+                Log("Library: " + LibraryStore.GetDefaultDatabasePath());
                 Log("Download folder: " + PlaylistItemExtension.OutputDirectory);
+                RestoreAccountField();
+                StartListenInbox();
+                FillSourceList();
+                TryImportPendingFiles();
                 await LoadChannelAsync();
             };
+        }
+
+        private void FillSourceList()
+        {
+            updatingSources = true;
+            try
+            {
+                var selected = playlistList.SelectedIndex;
+                playlistList.Items.Clear();
+                playlistList.Items.Add("Recently listened");
+                playlistList.Items.Add("Download history");
+                if (channel is not null)
+                {
+                    foreach (var playlist in channel.playlists)
+                        playlistList.Items.Add(playlist.GetTitle());
+                }
+
+                if (selected >= 0 && selected < playlistList.Items.Count)
+                    playlistList.SelectedIndex = selected;
+            }
+            finally
+            {
+                updatingSources = false;
+            }
         }
 
         private async void refreshButton_Click(object? sender, EventArgs e)
         {
             await LoadChannelAsync();
+        }
+
+        private void RestoreAccountField()
+        {
+            var account = library.GetCurrentAccount();
+            if (account is null)
+                return;
+
+            listenUrlTextBox.Text = account.Url ?? account.AccountId;
+            Log($"Account: {account.Name} ({account.AccountId})");
+        }
+
+        private void StartListenInbox()
+        {
+            listenInbox.ListenReceived += item =>
+            {
+                if (IsDisposed)
+                    return;
+                BeginInvoke(() => ApplyIncomingListen(item));
+            };
+
+            try
+            {
+                listenInbox.Start();
+                Log($"Listen inbox: http://127.0.0.1:{ListenInboxServer.Port}/listened");
+            }
+            catch (Exception ex)
+            {
+                Log("Could not start listen inbox: " + ex.Message);
+            }
+        }
+
+        private void ApplyIncomingListen(ListenExportItem item)
+        {
+            var account = library.GetCurrentAccount();
+            if (account is null)
+            {
+                ListenFile.AppendPending(item);
+                Log($"Queued listen (set account to import): {item.Title}");
+                return;
+            }
+
+            library.AddOrIncrementListen(account.AccountId, item.VideoId, item.Title, item.Url);
+            Log($"Listened: {item.Title}");
+        }
+
+        private async void importListensButton_Click(object? sender, EventArgs e)
+        {
+            var accountId = RequireAccountId();
+            if (accountId is null)
+                return;
+
+            using var dialog = new OpenFileDialog
+            {
+                Title = "Load listens JSON",
+                Filter = "Listen files (*.json)|*.json|All files (*.*)|*.*",
+                FileName = "pending-listens.json",
+                InitialDirectory = Directory.Exists(Path.GetDirectoryName(ListenFile.PendingPath))
+                    ? Path.GetDirectoryName(ListenFile.PendingPath)!
+                    : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+            };
+
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+                return;
+
+            ImportListensFromFile(accountId, dialog.FileName);
+            playlistList.SelectedIndex = RecentlyListenedIndex;
+            await ShowListenedAsync();
+        }
+
+        private void TryImportPendingFiles()
+        {
+            var accountId = library.GetCurrentAccount()?.AccountId;
+            if (accountId is null)
+                return;
+
+            foreach (var path in new[] { ListenFile.PendingPath, ListenFile.DownloadsPath })
+            {
+                if (File.Exists(path))
+                    ImportListensFromFile(accountId, path);
+            }
+        }
+
+        private void ImportListensFromFile(string accountId, string path)
+        {
+            try
+            {
+                var file = ListenFile.Load(path);
+                var imported = library.ImportListens(accountId, file.Listens);
+                Log($"Imported {imported} listen(s) from {path}");
+            }
+            catch (Exception ex)
+            {
+                Log($"Could not import {path}: {ex.Message}");
+            }
+        }
+
+        private string? RequireAccountId()
+        {
+            var account = library.GetCurrentAccount();
+            if (account is not null)
+                return account.AccountId;
+
+            MessageBox.Show(
+                "Set your YouTube account first (channel ID like UCxxxx or @handle).",
+                "Account required",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            return null;
+        }
+
+        private async void addListenButton_Click(object? sender, EventArgs e)
+        {
+            await SetAccountAsync();
+        }
+
+        private async Task SetAccountAsync()
+        {
+            var input = listenUrlTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                MessageBox.Show("Enter your channel ID (UCxxxx), @handle, or channel URL.", "Info", MessageBoxButtons.OK);
+                return;
+            }
+
+            if (YouTubeUrl.TryGetVideoId(input, out _))
+            {
+                MessageBox.Show(
+                    "That looks like a video URL. Enter your channel ID or @handle instead.\nYouTube does not share watch history from an ID — this only identifies whose library this is.",
+                    "Info",
+                    MessageBoxButtons.OK);
+                return;
+            }
+
+            SetBusy(true);
+            Log($"Setting account: {input}");
+
+            try
+            {
+                var loaded = await Task.Run(() => new Channel(input));
+                var account = library.SetCurrentAccount(loaded.id, loaded.name, loaded.url);
+                listenUrlTextBox.Text = account.Url ?? account.AccountId;
+                Log($"Account set: {account.Name} ({account.AccountId})");
+            }
+            catch (Exception ex)
+            {
+                Log("Could not set account: " + ex.Message);
+                MessageBox.Show(ex.Message, "Could not set account", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                SetBusy(false);
+            }
         }
 
         private async Task LoadChannelAsync()
@@ -45,10 +238,7 @@ namespace MusicDownloadUI
             {
                 var loaded = await Task.Run(() => new Channel(url));
                 channel = loaded;
-
-                playlistList.Items.Clear();
-                foreach (var playlist in channel.playlists)
-                    playlistList.Items.Add(playlist.GetTitle());
+                FillSourceList();
 
                 allVideos = channel.videos.ToList();
                 await ShowVideosAsync(allVideos);
@@ -57,7 +247,7 @@ namespace MusicDownloadUI
             catch (Exception ex)
             {
                 channel = null;
-                playlistList.Items.Clear();
+                FillSourceList();
                 videosList.Items.Clear();
                 allVideos.Clear();
                 Log("Failed to load channel: " + ex.Message);
@@ -71,7 +261,7 @@ namespace MusicDownloadUI
 
         private async void playlistList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (channel is null)
+            if (updatingSources)
                 return;
 
             int selectedIndex = playlistList.SelectedIndex;
@@ -80,7 +270,22 @@ namespace MusicDownloadUI
 
             try
             {
-                var selectedPlaylist = channel.GetPlaylist(selectedIndex);
+                if (selectedIndex == RecentlyListenedIndex)
+                {
+                    await ShowListenedAsync();
+                    return;
+                }
+
+                if (selectedIndex == DownloadHistoryIndex)
+                {
+                    await ShowDownloadHistoryAsync();
+                    return;
+                }
+
+                if (channel is null)
+                    return;
+
+                var selectedPlaylist = channel.GetPlaylist(selectedIndex - ChannelPlaylistOffset);
                 allVideos = selectedPlaylist.GetVideos();
                 await ShowVideosAsync(allVideos);
             }
@@ -90,6 +295,32 @@ namespace MusicDownloadUI
             }
         }
 
+        private async Task ShowListenedAsync()
+        {
+            var accountId = RequireAccountId();
+            if (accountId is null)
+                return;
+
+            allVideos = library.GetListens(accountId)
+                .Select(track => track.ToPlaylistItem())
+                .ToList();
+            await ShowVideosAsync(allVideos);
+            Log($"Recently listened: {allVideos.Count} track(s).");
+        }
+
+        private async Task ShowDownloadHistoryAsync()
+        {
+            var accountId = RequireAccountId();
+            if (accountId is null)
+                return;
+
+            allVideos = library.GetLatestSuccessfulDownloads(accountId)
+                .Select(track => track.ToPlaylistItem())
+                .ToList();
+            await ShowVideosAsync(allVideos);
+            Log($"Download history: {allVideos.Count} track(s).");
+        }
+
         private async void showAllButton_Click(object sender, EventArgs e)
         {
             if (channel is null)
@@ -97,6 +328,7 @@ namespace MusicDownloadUI
 
             allVideos = channel.playlists
                 .SelectMany(playlist => playlist.GetVideos())
+                .DistinctByVideoId()
                 .ToList();
 
             await ShowVideosAsync(allVideos);
@@ -163,10 +395,19 @@ namespace MusicDownloadUI
             }
         }
 
-        private static string? GetThumbnailUrl(PlaylistItem video) =>
-            video.Snippet?.Thumbnails?.Medium?.Url
-            ?? video.Snippet?.Thumbnails?.Default__?.Url
-            ?? video.Snippet?.Thumbnails?.High?.Url;
+        private static string? GetThumbnailUrl(PlaylistItem video)
+        {
+            var fromApi = video.Snippet?.Thumbnails?.Medium?.Url
+                ?? video.Snippet?.Thumbnails?.Default__?.Url
+                ?? video.Snippet?.Thumbnails?.High?.Url;
+            if (!string.IsNullOrEmpty(fromApi))
+                return fromApi;
+
+            var videoId = video.GetVideoId();
+            return string.IsNullOrEmpty(videoId)
+                ? null
+                : $"https://i.ytimg.com/vi/{videoId}/mqdefault.jpg";
+        }
 
         private async void searchBar_TextChanged(object sender, EventArgs e)
         {
@@ -211,12 +452,14 @@ namespace MusicDownloadUI
 
         private async void downloadButton_Click(object sender, EventArgs e)
         {
-            var selectedVideos = videosList.SelectedItems
+            var selectedItems = videosList.SelectedItems
                 .Cast<ListViewItem>()
                 .Select(item => item.Tag as PlaylistItem)
                 .Where(video => video is not null)
                 .Cast<PlaylistItem>()
                 .ToList();
+
+            var selectedVideos = selectedItems.DistinctByVideoId();
 
             if (selectedVideos.Count == 0)
             {
@@ -224,12 +467,18 @@ namespace MusicDownloadUI
                 return;
             }
 
+            var accountId = RequireAccountId();
+            if (accountId is null)
+                return;
+
             Directory.CreateDirectory(PlaylistItemExtension.OutputDirectory);
 
             const int maxConcurrentDownloads = 5;
             using var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
 
             int completed = 0;
+            int downloaded = 0;
+            int skipped = 0;
             int failed = 0;
             int total = selectedVideos.Count;
 
@@ -238,19 +487,31 @@ namespace MusicDownloadUI
             progressBar.Value = 0;
 
             SetBusy(true);
-            Log($"Downloading {total} file(s) to {PlaylistItemExtension.OutputDirectory}");
+            if (selectedItems.Count != total)
+                Log($"Ignored {selectedItems.Count - total} duplicate playlist entries.");
+            Log($"Downloading {total} unique file(s) to {PlaylistItemExtension.OutputDirectory}");
 
             var downloadTasks = selectedVideos.Select(async video =>
             {
                 await semaphore.WaitAsync();
                 try
                 {
-                    await video.DownloadAsync();
+                    var result = await video.DownloadAsync();
+                    var status = result.WroteNewFile ? "Success" : "Skipped";
+                    library.AddDownload(accountId, result.VideoId, result.Title, result.FilePath, status);
+                    library.AddOrIncrementListen(accountId, result.VideoId, result.Title, "https://www.youtube.com/watch?v=" + result.VideoId);
+                    if (result.WroteNewFile)
+                        Interlocked.Increment(ref downloaded);
+                    else
+                        Interlocked.Increment(ref skipped);
                 }
                 catch (Exception ex)
                 {
                     Interlocked.Increment(ref failed);
-                    Log($"Error downloading {video.Snippet?.Title}: {ex.Message}");
+                    var videoId = video.GetVideoId() ?? "";
+                    var title = video.Snippet?.Title ?? videoId;
+                    library.AddDownload(accountId, videoId, title, null, "Failed", ex.Message);
+                    Log($"Error downloading {title}: {ex.Message}");
                 }
                 finally
                 {
@@ -269,7 +530,8 @@ namespace MusicDownloadUI
 
             MessageBox.Show(
                 "Downloads completed!\n" +
-                $"Success: {total - failed}\n" +
+                $"Downloaded: {downloaded}\n" +
+                $"Already existed: {skipped}\n" +
                 $"Fail: {failed}",
                 "Info",
                 MessageBoxButtons.OK);
@@ -282,6 +544,9 @@ namespace MusicDownloadUI
             showAllButton.Enabled = !busy;
             playlistList.Enabled = !busy;
             folderButton.Enabled = !busy;
+            addListenButton.Enabled = !busy;
+            listenUrlTextBox.Enabled = !busy;
+            importListensButton.Enabled = !busy;
             UseWaitCursor = busy;
         }
 

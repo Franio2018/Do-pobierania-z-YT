@@ -34,12 +34,15 @@
             qualityCommboBox = new ComboBox();
             splitContainer1 = new SplitContainer();
             playlistList = new ListBox();
+            importListensButton = new Button();
+            addListenButton = new Button();
+            listenUrlTextBox = new TextBox();
             refreshButton = new Button();
             showAllButton = new Button();
+            channelUrlTextBox = new TextBox();
             videosList = new ListView();
             selectAllButton = new Button();
             searchBar = new TextBox();
-            channelUrlTextBox = new TextBox();
             folderButton = new Button();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -50,25 +53,25 @@
             // messageWindow
             // 
             messageWindow.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            messageWindow.Location = new Point(3, 433);
+            messageWindow.Location = new Point(3, 419);
             messageWindow.Name = "messageWindow";
             messageWindow.ReadOnly = true;
-            messageWindow.Size = new Size(795, 60);
+            messageWindow.Size = new Size(795, 84);
             messageWindow.TabIndex = 0;
             messageWindow.Text = "";
             // 
             // progressBar
             // 
             progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            progressBar.Location = new Point(268, 395);
+            progressBar.Location = new Point(268, 381);
             progressBar.Name = "progressBar";
-            progressBar.Size = new Size(530, 34);
+            progressBar.Size = new Size(530, 32);
             progressBar.TabIndex = 1;
             // 
             // downloadButton
             // 
             downloadButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            downloadButton.Location = new Point(160, 395);
+            downloadButton.Location = new Point(160, 381);
             downloadButton.Name = "downloadButton";
             downloadButton.Size = new Size(102, 34);
             downloadButton.TabIndex = 2;
@@ -80,7 +83,7 @@
             // 
             qualityCommboBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             qualityCommboBox.FormattingEnabled = true;
-            qualityCommboBox.Location = new Point(76, 399);
+            qualityCommboBox.Location = new Point(76, 385);
             qualityCommboBox.Name = "qualityCommboBox";
             qualityCommboBox.Size = new Size(78, 28);
             qualityCommboBox.TabIndex = 3;
@@ -94,6 +97,9 @@
             // splitContainer1.Panel1
             // 
             splitContainer1.Panel1.Controls.Add(playlistList);
+            splitContainer1.Panel1.Controls.Add(importListensButton);
+            splitContainer1.Panel1.Controls.Add(addListenButton);
+            splitContainer1.Panel1.Controls.Add(listenUrlTextBox);
             splitContainer1.Panel1.Controls.Add(refreshButton);
             splitContainer1.Panel1.Controls.Add(showAllButton);
             splitContainer1.Panel1.Controls.Add(channelUrlTextBox);
@@ -103,7 +109,7 @@
             splitContainer1.Panel2.Controls.Add(videosList);
             splitContainer1.Panel2.Controls.Add(selectAllButton);
             splitContainer1.Panel2.Controls.Add(searchBar);
-            splitContainer1.Size = new Size(798, 389);
+            splitContainer1.Size = new Size(798, 375);
             splitContainer1.SplitterDistance = 266;
             splitContainer1.TabIndex = 4;
             // 
@@ -111,11 +117,42 @@
             // 
             playlistList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             playlistList.FormattingEnabled = true;
-            playlistList.Location = new Point(4, 127);
+            playlistList.Location = new Point(4, 224);
             playlistList.Name = "playlistList";
-            playlistList.Size = new Size(258, 252);
+            playlistList.Size = new Size(258, 124);
             playlistList.TabIndex = 2;
             playlistList.SelectedIndexChanged += playlistList_SelectedIndexChanged;
+            // 
+            // importListensButton
+            // 
+            importListensButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            importListensButton.Location = new Point(3, 188);
+            importListensButton.Name = "importListensButton";
+            importListensButton.Size = new Size(259, 32);
+            importListensButton.TabIndex = 6;
+            importListensButton.Text = "Load listens";
+            importListensButton.UseVisualStyleBackColor = true;
+            importListensButton.Click += importListensButton_Click;
+            // 
+            // addListenButton
+            // 
+            addListenButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            addListenButton.Location = new Point(3, 155);
+            addListenButton.Name = "addListenButton";
+            addListenButton.Size = new Size(259, 32);
+            addListenButton.TabIndex = 5;
+            addListenButton.Text = "Set account";
+            addListenButton.UseVisualStyleBackColor = true;
+            addListenButton.Click += addListenButton_Click;
+            // 
+            // listenUrlTextBox
+            // 
+            listenUrlTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            listenUrlTextBox.Location = new Point(3, 125);
+            listenUrlTextBox.Name = "listenUrlTextBox";
+            listenUrlTextBox.PlaceholderText = "Your account ID or @handle";
+            listenUrlTextBox.Size = new Size(259, 27);
+            listenUrlTextBox.TabIndex = 4;
             // 
             // refreshButton
             // 
@@ -139,12 +176,22 @@
             showAllButton.UseVisualStyleBackColor = true;
             showAllButton.Click += showAllButton_Click;
             // 
+            // channelUrlTextBox
+            // 
+            channelUrlTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            channelUrlTextBox.Location = new Point(3, 3);
+            channelUrlTextBox.Name = "channelUrlTextBox";
+            channelUrlTextBox.PlaceholderText = "Channel URL...";
+            channelUrlTextBox.Size = new Size(259, 27);
+            channelUrlTextBox.TabIndex = 3;
+            channelUrlTextBox.Text = "https://www.youtube.com/@NFmusic";
+            // 
             // videosList
             // 
             videosList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             videosList.Location = new Point(3, 36);
             videosList.Name = "videosList";
-            videosList.Size = new Size(522, 350);
+            videosList.Size = new Size(522, 336);
             videosList.TabIndex = 2;
             videosList.UseCompatibleStateImageBehavior = false;
             // 
@@ -159,27 +206,6 @@
             selectAllButton.UseVisualStyleBackColor = true;
             selectAllButton.Click += selectAllButton_Click;
             // 
-            // channelUrlTextBox
-            // 
-            channelUrlTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            channelUrlTextBox.Location = new Point(3, 3);
-            channelUrlTextBox.Name = "channelUrlTextBox";
-            channelUrlTextBox.PlaceholderText = "Channel URL...";
-            channelUrlTextBox.Size = new Size(259, 27);
-            channelUrlTextBox.TabIndex = 3;
-            channelUrlTextBox.Text = "https://www.youtube.com/@NFmusic";
-            // 
-            // folderButton
-            // 
-            folderButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            folderButton.Location = new Point(3, 395);
-            folderButton.Name = "folderButton";
-            folderButton.Size = new Size(70, 34);
-            folderButton.TabIndex = 5;
-            folderButton.Text = "Folder";
-            folderButton.UseVisualStyleBackColor = true;
-            folderButton.Click += folderButton_Click;
-            // 
             // searchBar
             // 
             searchBar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -189,6 +215,17 @@
             searchBar.TabIndex = 0;
             searchBar.Text = "\"Filter videos...\"";
             searchBar.TextChanged += searchBar_TextChanged;
+            // 
+            // folderButton
+            // 
+            folderButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            folderButton.Location = new Point(3, 381);
+            folderButton.Name = "folderButton";
+            folderButton.Size = new Size(70, 34);
+            folderButton.TabIndex = 5;
+            folderButton.Text = "Folder";
+            folderButton.UseVisualStyleBackColor = true;
+            folderButton.Click += folderButton_Click;
             // 
             // Form1
             // 
@@ -224,6 +261,14 @@
                 {
                     e.SuppressKeyPress = true;
                     await LoadChannelAsync();
+                }
+            };
+            listenUrlTextBox.KeyDown += async (_, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true;
+                    await SetAccountAsync();
                 }
             };
         }
@@ -291,5 +336,8 @@
         private ListView videosList;
         private TextBox channelUrlTextBox = null!;
         private Button folderButton = null!;
+        private TextBox listenUrlTextBox = null!;
+        private Button addListenButton = null!;
+        private Button importListensButton = null!;
     }
 }

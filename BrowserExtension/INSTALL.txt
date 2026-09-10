@@ -1,0 +1,8 @@
+Install (Chrome or Edge):
+1. Open chrome://extensions or edge://extensions
+2. Enable Developer mode
+3. Load unpacked -> select this BrowserExtension folder
+4. Pin the extension and play YouTube until a video reaches ~80%
+
+If MusicDownloadUI is running, listens arrive live (http://127.0.0.1:17823).
+If it is closed, click the extension icon -> Export JSON, then in the app use Load listens.

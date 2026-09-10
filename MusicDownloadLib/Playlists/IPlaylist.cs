@@ -1,6 +1,6 @@
 ﻿using Google.Apis.YouTube.v3.Data;
 
-namespace MusicDownloadLib
+namespace MusicDownloadLib.Playlists
 {
     public interface IPlaylist
     {

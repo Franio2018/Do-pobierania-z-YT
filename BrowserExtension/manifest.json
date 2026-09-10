@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "MusicDownload listens",
+  "version": "1.0.0",
+  "description": "Records YouTube watches (80%+) for the MusicDownload desktop app. Does not download videos.",
+  "permissions": ["storage", "downloads"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "http://127.0.0.1:17823/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "MusicDownload listens",
+    "default_popup": "popup.html"
+  }
+}
