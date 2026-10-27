@@ -239,8 +239,8 @@
             Controls.Add(downloadButton);
             Controls.Add(progressBar);
             Controls.Add(messageWindow);
-            Name = "Form1";
-            Text = "Form1";
+            Name = "YouTube-Downloader";
+            Text = "YouTube-Downloader";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);

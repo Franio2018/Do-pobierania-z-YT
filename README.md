@@ -2,6 +2,8 @@
 
 Desktopowa aplikacja .NET 8 (WinForms) do przeglądania kanałów YouTube i pobierania audio, z lokalną biblioteką odsłuchów i historią pobrań. Odsłuchy zbiera towarzysząca wtyczka do przeglądarki (Chrome / Edge).
 
+![Zrzut ekranu aplikacji](docs/screenshot.png)
+
 ## Funkcje
 
 - **Przeglądanie kanału** — wklejasz URL, `@handle`, `/user/…`, `/c/…` albo ID `UC…`; aplikacja ładuje playlisty i uploady kanału z miniaturami.
